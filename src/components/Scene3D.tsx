@@ -1,81 +1,98 @@
-import { Canvas, useThree, useFrame } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { useState } from 'react'
-import { useRef } from 'react'
-import { Vector3 } from 'three'
-
-function Cylinder({ isPointingAtCamera }) {
-  const { camera } = useThree()
-  const cylinderRef = useRef()
-
-  // Adjust the cylinder's rotation in each frame
-  useFrame(() => {
-    if (!cylinderRef.current) return
-
-    // Get the direction to the camera or away from the camera
-    const cylinderPosition = new Vector3(0, 0, 0)
-    const cameraPosition = camera.position.clone()
-    const direction = new Vector3()
-
-    if (isPointingAtCamera) {
-      // Aim at the camera
-      direction.subVectors(cameraPosition, cylinderPosition).normalize()
-    } else {
-      // Aim away from the camera
-      direction.subVectors(cylinderPosition, cameraPosition).normalize()
-    }
-
-    // Update rotation to point in the calculated direction
-    cylinderRef.current.lookAt(direction.add(cylinderPosition))
-  })
-
-  return (
-    <mesh ref={cylinderRef} position={[0, 0, 0]}>
-      <cylinderGeometry args={[0.5, 0.5, 2]} />
-      <meshStandardMaterial color={isPointingAtCamera ? 'lightblue' : 'pink'} />
-    </mesh>
-  )
-}
+import { Gun } from './Scene'
+import React, { useState, useEffect } from 'react'
+import { Button } from './ui/button'
+import { useSpring, animated } from '@react-spring/three'
 
 export default function Scene3D() {
-  const [isPointingAtCamera, setIsPointingAtCamera] = useState(false)
+  const [currentAnimation, setCurrentAnimation] = useState<string | null>(null)
+  const [availableAnimations, setAvailableAnimations] = useState<string[]>([])
+  const [isPointedAtViewer, setIsPointedAtViewer] = useState(true)
+  const [startPosition, setStartPosition] = useState<'left' | 'front'>('left')
+
+  // spring animation for rotation
+  const { rotation } = useSpring({
+    rotation: [0, isPointedAtViewer 
+      ? (startPosition === 'left' ? Math.PI + Math.PI/2 : Math.PI) 
+      : (startPosition === 'left' ? Math.PI/2 : 0), 
+    0],
+    config: {
+      mass: 1,
+      tension: 180,
+      friction: 12,
+    }
+  })
+
+  const handleSetAnimations = (animations: string[]) => {
+    setAvailableAnimations(animations)
+    if (animations.length > 0 && !currentAnimation) {
+      setCurrentAnimation(animations[0])
+    }
+  }
 
   return (
     <>
-      <Canvas>
-        <Cylinder isPointingAtCamera={isPointingAtCamera} />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} />
-        <OrbitControls />
-      </Canvas>
-
-      {/* Static button at the bottom */}
-      <div
+      <Canvas
+        camera={{
+          position: [0, 0.5, 2],
+          fov: 45,
+        }}
         style={{
-          position: 'fixed',
-          bottom: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 10,
-          display: 'flex',
-          justifyContent: 'center',
+          width: '100vw',
+          height: '75vh',
         }}
       >
-        <button
-          onClick={() => setIsPointingAtCamera(!isPointingAtCamera)}
-          style={{
-            padding: '12px 24px',
-            cursor: 'pointer',
-            fontSize: '16px',
-            borderRadius: '8px',
-            border: 'none',
-            background: 'lightblue',
-            color: 'white',
-            fontWeight: 'bold',
-          }}
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[10, 10, 5]} />
+        <OrbitControls 
+          enableZoom={false}
+          enablePan={false}
+          minPolarAngle={Math.PI / 2}
+          maxPolarAngle={Math.PI / 2}
+        />
+        <animated.group rotation={rotation}>
+          <Gun
+            position={[0, -0.5, 0]}
+            rotation={[0, 0, 0]} // Base rotation is now handled by the animated group
+            scale={.8}
+            currentAnimation={currentAnimation}
+            onSetAnimations={handleSetAnimations}
+          />
+        </animated.group>
+      </Canvas>
+      <div className="flex justify-center gap-2 mt-2">
+        <Button
+          onClick={() => setIsPointedAtViewer(!isPointedAtViewer)}
+          variant="outline"
         >
-          {isPointingAtCamera ? 'Point Away' : 'Point At Me'}
-        </button>
+          {isPointedAtViewer ? 'Point Away' : 'Point At Me'}
+        </Button>
+        <Button
+          onClick={() => setStartPosition(startPosition === 'left' ? 'front' : 'left')}
+          variant="outline"
+        >
+          Position: {startPosition === 'left' ? 'Left' : 'Front'}
+        </Button>
+      </div>
+      <div>
+        {availableAnimations.map((animation) => (
+          <button
+            key={animation}
+            onClick={() => setCurrentAnimation(animation)}
+            style={{
+              margin: '0.5em',
+              padding: '0.5em 1em',
+              backgroundColor: currentAnimation === animation ? '#4caf50' : '#ccc',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+            }}
+          >
+            {animation}
+          </button>
+        ))}
       </div>
     </>
   )
