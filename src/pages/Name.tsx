@@ -3,40 +3,95 @@
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { StartScreen } from './StartScreen'
+import { RoundDisplay } from '@/components/game/RoundDisplay'
+import { GameControls } from '@/components/game/GameControls'
+import { GameState } from '@/lib/game/types'
+import { ItemsDisplay } from '@/components/game/ItemsDisplay'
+import { PlayerCard } from '@/components/game/PlayerCard'
 
 type Round = 'live' | 'blank'
+type Player = 'player1' | 'player2'
+type Item = 'magnifyingGlass' | 'handcuffs' | 'cigarette'
 
 
 export default function BuckshotRoulette() {
-  const [playerHealth, setPlayerHealth] = useState(3)
-  const [computerHealth, setComputerHealth] = useState(3)
-  const [currentTurn, setCurrentTurn] = useState<'player' | 'computer'>('player')
+  const [gameStarted, setGameStarted] = useState(false)
+  const [player1Health, setPlayer1Health] = useState(6)
+  const [player2Health, setPlayer2Health] = useState(6)
+  const [currentTurn, setCurrentTurn] = useState<Player>('player1')
   const [shotgun, setShotgun] = useState<Round[]>([])
   const [gameOver, setGameOver] = useState(false)
   const [message, setMessage] = useState('')
+  const [reloadCount, setReloadCount] = useState(0)
+  const [visibleRounds, setVisibleRounds] = useState<Round[]>([])
+  const [player1Items, setPlayer1Items] = useState<Item[]>([])
+  const [player2Items, setPlayer2Items] = useState<Item[]>([])
+  const [isReloading, setIsReloading] = useState(false)
 
   useEffect(() => {
     resetGame()
   }, [])
 
   const resetGame = () => {
-    setPlayerHealth(3)
-    setComputerHealth(3)
-    setCurrentTurn('player')
+    setPlayer1Health(6)
+    setPlayer2Health(6)
+    setCurrentTurn('player1')
     setGameOver(false)
     setMessage('')
+    setPlayer1Items([])
+    setPlayer2Items([])
     reloadShotgun()
   }
 
   const reloadShotgun = () => {
+    setIsReloading(true)
+    const nextReloadCount = reloadCount + 1
+    setReloadCount(nextReloadCount)
+  
+    // Decide how many bullets to load for this reload.
+    let numberOfShells
+    let numberOfLive
+    switch (nextReloadCount) {
+      case 1:
+        numberOfShells = 3
+        numberOfLive = 1
+        break
+      case 2:
+        numberOfShells = 4
+        numberOfLive = 2
+        break
+      default:
+        numberOfShells = 6
+        numberOfLive = 3
+    }
+  
+    // Build the new shotgun array
     const newShotgun: Round[] = []
-    for (let i = 0; i < 6; i++) {
-      newShotgun.push(Math.random() < 0.5 ? 'live' : 'blank')
+    for (let i = 0; i < numberOfLive; i++) {
+      newShotgun.push('live')
     }
-    setShotgun(newShotgun)
+    for (let i = 0; i < numberOfShells - numberOfLive; i++) {
+      newShotgun.push('blank')
+    }
+  
+    // Show the rounds before shuffling
+    setVisibleRounds([...newShotgun])
+  
+    // Shuffle after a delay
+    setTimeout(() => {
+      // Shuffle the rounds
+      for (let i = newShotgun.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[newShotgun[i], newShotgun[j]] = [newShotgun[j], newShotgun[i]]
+      }
+      setShotgun(newShotgun)
+      setVisibleRounds([])
+      setIsReloading(false)
+    }, 2000)
   }
 
-  const shootSelf = () => {
+  const handleShot = (shooter: Player, target: Player) => {
     if (shotgun.length === 0) return
     
     const round = shotgun[0]
@@ -44,125 +99,91 @@ export default function BuckshotRoulette() {
     setShotgun(newShotgun)
 
     if (round === 'live') {
-      setPlayerHealth(playerHealth - 1)
-      setMessage('You shot yourself with a live round!')
+      if (target === 'player1') {
+        setPlayer1Health(h => h - 1)
+      } else {
+        setPlayer2Health(h => h - 1)
+      }
+      setMessage(`${round === 'live' ? '💥 Hit!' : '🚫 Miss!'}`)
     } else {
       setMessage('Click! It was a blank.')
     }
 
+    setCurrentTurn(currentTurn === 'player1' ? 'player2' : 'player1')
     if (newShotgun.length === 0) reloadShotgun()
-    setCurrentTurn('computer')
-  }
-
-  const shootOpponent = () => {
-    if (shotgun.length === 0) return
-    
-    const round = shotgun[0]
-    const newShotgun = shotgun.slice(1)
-    setShotgun(newShotgun)
-
-    if (round === 'live') {
-      setComputerHealth(computerHealth - 1)
-      setMessage('You shot the computer with a live round!')
-    } else {
-      setMessage('Click! It was a blank.')
-    }
-
-    if (newShotgun.length === 0) reloadShotgun()
-    setCurrentTurn('computer')
   }
 
   const lookAtRound = () => {
     if (shotgun.length === 0) return
     
     setMessage(`The next round is ${shotgun[0]}`)
-    setCurrentTurn('computer')
+    setCurrentTurn('player1')
   }
 
-  const computerTurn = () => {
-    if (shotgun.length === 0) return
-    
-    const action = Math.random()
-    if (action < 0.4) {
-      // Shoot player
-      const round = shotgun[0]
-      const newShotgun = shotgun.slice(1)
-      setShotgun(newShotgun)
+  const useItem = (item: Item) => {
+    // Items can be used on player's turn but don't end the turn
+    if (currentTurn !== 'player1' || gameOver) return
 
-      if (round === 'live') {
-        setPlayerHealth(playerHealth - 1)
-        setMessage('The computer shot you with a live round!')
-      } else {
-        setMessage('Click! The computer shot a blank at you.')
-      }
-
-      if (newShotgun.length === 0) reloadShotgun()
-    } else if (action < 0.8) {
-      // Shoot self
-      const round = shotgun[0]
-      const newShotgun = shotgun.slice(1)
-      setShotgun(newShotgun)
-
-      if (round === 'live') {
-        setComputerHealth(computerHealth - 1)
-        setMessage('The computer shot itself with a live round!')
-      } else {
-        setMessage('Click! The computer shot a blank at itself.')
-      }
-
-      if (newShotgun.length === 0) reloadShotgun()
-    } else {
-      // Look at round
-      setMessage('The computer looked at the next round.')
+    switch (item) {
+      case 'magnifyingGlass':
+        if (shotgun.length > 0) {
+          setMessage(`Next round is: ${shotgun[0] === 'live' ? 'Live' : 'Blank'}`)
+          setPlayer1Items(items => items.filter(i => i !== 'magnifyingGlass')) // Remove after use
+        } else {
+          setMessage('No rounds to look at!')
+        }
+        break;
+      // Add other item cases here
     }
-
-    setCurrentTurn('player')
   }
 
   useEffect(() => {
-    if (playerHealth <= 0) {
+    if (player1Health <= 0) {
       setGameOver(true)
-      setMessage('Game Over! You lost.')
-    } else if (computerHealth <= 0) {
+      setMessage('Player 2 Wins!')
+    } else if (player2Health <= 0) {
       setGameOver(true)
-      setMessage('Congratulations! You won!')
-    } else if (currentTurn === 'computer') {
-      const timer = setTimeout(() => {
-        computerTurn()
-      }, 1500)
-      return () => clearTimeout(timer)
+      setMessage('Player 1 Wins!')
     }
-  }, [playerHealth, computerHealth, currentTurn])
+  }, [player1Health, player2Health])
+
+  if (!gameStarted) {
+    return <StartScreen onStartGame={() => setGameStarted(true)} />
+  }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Buckshot Roulette</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex justify-between">
-          <div>Player Health: {playerHealth}</div>
-          <div>Computer Health: {computerHealth}</div>
-        </div>
-        <div className="text-center">{message}</div>
-        <div className="flex justify-center space-x-2">
-          <Button onClick={shootSelf} disabled={currentTurn !== 'player' || gameOver}>
-            Shoot Self
-          </Button>
-          <Button onClick={shootOpponent} disabled={currentTurn !== 'player' || gameOver}>
-            Shoot Opponent
-          </Button>
-          <Button onClick={lookAtRound} disabled={currentTurn !== 'player' || gameOver}>
-            Look at Round
-          </Button>
-        </div>
-        {gameOver && (
-          <Button onClick={resetGame} className="w-full">
-            Play Again
-          </Button>
-        )}
-      </CardContent>
-    </Card>
+    <div className="container mx-auto p-4">
+      <RoundDisplay 
+        visibleRounds={visibleRounds}
+        currentShotgun={shotgun}
+        isReloading={isReloading}
+      />
+      <div className="flex gap-4 justify-center">
+        <PlayerCard
+          player="player1"
+          health={player1Health}
+          items={player1Items}
+          isCurrentTurn={currentTurn === 'player1'}
+          onShootSelf={() => handleShot('player1', 'player1')}
+          onShootOpponent={() => handleShot('player1', 'player2')}
+          onUseItem={useItem}
+          disabled={currentTurn !== 'player1' || gameOver || isReloading}
+        />
+        <PlayerCard
+          player="player2"
+          health={player2Health}
+          items={player2Items}
+          isCurrentTurn={currentTurn === 'player2'}
+          onShootSelf={() => handleShot('player2', 'player2')}
+          onShootOpponent={() => handleShot('player2', 'player1')}
+          onUseItem={useItem}
+          disabled={currentTurn !== 'player2' || gameOver || isReloading}
+        />
+      </div>
+      <div className="text-center mt-4 text-xl">
+        {message}
+      </div>
+    </div>
   )
 }
 
