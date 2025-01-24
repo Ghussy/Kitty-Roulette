@@ -1,19 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StartScreen } from './StartScreen'
 import { RoundDisplay } from '@/components/game/RoundDisplay'
-import { GameControls } from '@/components/game/GameControls'
-import { GameState } from '@/lib/game/types'
-import { ItemsDisplay } from '@/components/game/ItemsDisplay'
+import { Round, Player, Item } from '@/lib/game/types'
 import { PlayerCard } from '@/components/game/PlayerCard'
-
-type Round = 'live' | 'blank'
-type Player = 'player1' | 'player2'
-type Item = 'magnifyingGlass' | 'handcuffs' | 'cigarette'
-
 
 export default function BuckshotRoulette() {
   const [gameStarted, setGameStarted] = useState(false)
@@ -44,6 +35,17 @@ export default function BuckshotRoulette() {
     reloadShotgun()
   }
 
+  const addItems = (number: number) => {
+    const items: Item[] = ['cigarette', 'handcuffs', 'magnifyingGlass'];
+    const getRandomItem = () => items[Math.floor(Math.random() * items.length)]
+
+    const player1Items = Array.from({ length: number }, getRandomItem);
+    const player2Items = Array.from({ length: number }, getRandomItem);
+
+    setPlayer1Items(player1Items)
+    setPlayer2Items(player2Items)
+  }
+
   const reloadShotgun = () => {
     setIsReloading(true)
     const nextReloadCount = reloadCount + 1
@@ -60,10 +62,12 @@ export default function BuckshotRoulette() {
       case 2:
         numberOfShells = 4
         numberOfLive = 2
+        addItems(2);
         break
       default:
         numberOfShells = 6
         numberOfLive = 3
+        addItems(3);
     }
   
     // Build the new shotgun array

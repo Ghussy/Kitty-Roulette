@@ -23,6 +23,7 @@ export function PlayerCard({
   onUseItem,
   disabled
 }: PlayerCardProps) {
+  // console.log(items);
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
