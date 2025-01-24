@@ -1,6 +1,8 @@
 import { Item, Player } from '@/lib/game/types'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { ItemTooltip } from './ItemTooltip'
+import { ITEMS } from '@/lib/game/items-logic'
 
 interface PlayerCardProps {
   player: Player
@@ -23,7 +25,7 @@ export function PlayerCard({
   onUseItem,
   disabled
 }: PlayerCardProps) {
-  // console.log(items);
+    console.log(items);
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
@@ -53,19 +55,25 @@ export function PlayerCard({
             Shoot Opponent
           </Button>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          {items.map((item, index) => (
-            <Button
-              key={index}
-              onClick={() => onUseItem(item)}
-              disabled={disabled}
-              variant="secondary"
-              size="sm"
-            >
-              {item === 'magnifyingGlass' ? '🔍' : 
-               item === 'handcuffs' ? '⛓️' : '🚬'}
-            </Button>
-          ))}
+        <div className="flex gap-2 mt-2">
+          {items.map((item, index) => {
+            const itemData = ITEMS[item]
+            return (
+              <ItemTooltip 
+                key={`${item}-${index}`}
+                name={itemData.name}
+                description={itemData.description}
+              >
+                <button
+                  onClick={() => onUseItem(item)}
+                  disabled={disabled}
+                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+                >
+                  {itemData.name}
+                </button>
+              </ItemTooltip>
+            )
+          })}
         </div>
       </CardContent>
     </Card>
