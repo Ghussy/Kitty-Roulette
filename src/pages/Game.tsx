@@ -42,15 +42,15 @@ export default function BuckshotRoulette() {
 
   const giveRandomItems = (numItems: number) => {
     const availableItems = Object.keys(ITEMS) as Item[]
-    
+
     // Give items to player1
-    const player1NewItems = Array(numItems).fill(null).map(() => 
+    const player1NewItems = Array(numItems).fill(null).map(() =>
       availableItems[Math.floor(Math.random() * availableItems.length)]
     )
     setPlayer1Items(currentItems => [...currentItems, ...player1NewItems])
-    
+
     // Give items to player2
-    const player2NewItems = Array(numItems).fill(null).map(() => 
+    const player2NewItems = Array(numItems).fill(null).map(() =>
       availableItems[Math.floor(Math.random() * availableItems.length)]
     )
     setPlayer2Items(currentItems => [...currentItems, ...player2NewItems])
@@ -73,9 +73,9 @@ export default function BuckshotRoulette() {
       default:
         numberOfItems = 2
     }
-    
+
     giveRandomItems(numberOfItems)
-    
+
     // Decide how many bullets to load for this reload.
     let numberOfShells
     let numberOfLive
@@ -87,14 +87,12 @@ export default function BuckshotRoulette() {
       case 2:
         numberOfShells = 4
         numberOfLive = 2
-        addItems(2);
         break
       default:
         numberOfShells = 6
         numberOfLive = 3
-        addItems(3);
     }
-  
+
     // Build the new shotgun array
     const newShotgun: Round[] = []
     for (let i = 0; i < numberOfLive; i++) {
@@ -103,16 +101,16 @@ export default function BuckshotRoulette() {
     for (let i = 0; i < numberOfShells - numberOfLive; i++) {
       newShotgun.push('blank')
     }
-  
+
     // Show the rounds before shuffling
     setVisibleRounds([...newShotgun])
-  
+
     // Shuffle after a delay
     setTimeout(() => {
       // Shuffle the rounds
       for (let i = newShotgun.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
-        ;[newShotgun[i], newShotgun[j]] = [newShotgun[j], newShotgun[i]]
+          ;[newShotgun[i], newShotgun[j]] = [newShotgun[j], newShotgun[i]]
       }
       setShotgun(newShotgun)
       setVisibleRounds([])
@@ -122,7 +120,7 @@ export default function BuckshotRoulette() {
 
   const handleShot = (shooter: Player, target: Player) => {
     if (shotgun.length === 0) return
-    
+
     const round = shotgun[0]
     const newShotgun = shotgun.slice(1)
     setShotgun(newShotgun)
@@ -136,23 +134,32 @@ export default function BuckshotRoulette() {
       }
       setMessage(`💥 Hit for ${damage} damage!`)
       setGlitterActive(false) // Reset glitter after use
+
+      // If the shooter shot themselves, move to the next player
+      if (shooter !== target) {
+        const nextPlayer = currentTurn === 'player1' ? 'player2' : 'player1'
+        setCurrentTurn(nextPlayer)
+      } else {
+        // If the shooter shot themselves, move to the next player even though they took damage
+        const nextPlayer = currentTurn === 'player1' ? 'player2' : 'player1'
+        setCurrentTurn(nextPlayer)
+      }
     } else {
       setMessage('Click! It was a blank.')
       setGlitterActive(false) // Reset glitter on miss too
-    }
 
-    // Check if next player's turn should be skipped
-    const nextPlayer = currentTurn === 'player1' ? 'player2' : 'player1'
-    if (skipNextTurn === nextPlayer) {
-      setSkipNextTurn(null) // Reset skip state
-      // Don't change turns - current player goes again
-    } else {
-      setCurrentTurn(nextPlayer)
+      // If the player shot themselves with a blank, they get another turn
+      if (shooter === target) {
+        setCurrentTurn(shooter)  // The shooter gets another turn if it's a blank
+      } else {
+        // If it's a blank but the opponent is shot, move to the next player
+        const nextPlayer = currentTurn === 'player1' ? 'player2' : 'player1'
+        setCurrentTurn(nextPlayer)
+      }
     }
 
     if (newShotgun.length === 0) reloadShotgun()
   }
-
 
   const useItem = (item: Item) => {
     if (gameOver) return
@@ -212,7 +219,7 @@ export default function BuckshotRoulette() {
 
   return (
     <div className="container mx-auto p-4">
-      <RoundDisplay 
+      <RoundDisplay
         visibleRounds={visibleRounds}
         currentShotgun={shotgun}
         isReloading={isReloading}
