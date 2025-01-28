@@ -1,9 +1,16 @@
 import { Item, Player, Round } from './types'
+import Boba from '@/assets/icons/boba.svg?react'
+import Candy from '@/assets/icons/candy.svg?react'
+import MagnifyingGlass from '@/assets/icons/magnifying-glass.svg?react'
+import Purse from '@/assets/icons/purse.svg?react'
+import Sparkles from '@/assets/icons/sparkles.svg?react'
+import Speaker from '@/assets/icons/speaker.svg?react'
 
 export interface ItemData {
   id: Item
   name: string
   description: string
+  icon: React.FC<React.SVGProps<SVGSVGElement>>
   action: (params: ItemActionParams) => void
 }
 
@@ -28,8 +35,10 @@ interface ItemActionParams {
 export const ITEMS: Record<Item, ItemData> = {
   magnifyingGlass: {
     id: 'magnifyingGlass',
-    name: '🔍 Magnifying Glass',
+    // name: '🔍 Magnifying Glass',
+    name: 'Magnifying Glass',
     description: 'Peek at the next round in the shotgun',
+    icon: MagnifyingGlass,
     action: ({ shotgun, setMessage }) => {
       if (shotgun.length > 0) {
         setMessage(`Next round is: ${shotgun[0] === 'live' ? 'Live' : 'Blank'}`)
@@ -40,8 +49,10 @@ export const ITEMS: Record<Item, ItemData> = {
   },
   stickyHand: {
     id: 'stickyHand',
-    name: '✋ Sticky Hand',
+    // name: '✋ Sticky Hand',
+    name: 'Purse',
     description: 'Steal a random item from the opponent',
+    icon: Purse,
     action: ({ currentPlayer, opponent, player1Items, player2Items, setPlayer1Items, setPlayer2Items, setMessage }) => {
       const opponentItems = opponent === 'player1' ? player1Items : player2Items
       const stealableItems = opponentItems.filter(item => item !== 'stickyHand')
@@ -66,8 +77,10 @@ export const ITEMS: Record<Item, ItemData> = {
   },
   boba: {
     id: 'boba',
-    name: '🧋 Boba',
+    // name: '🧋 Boba',
+    name: 'Boba',
     description: 'Eject the current round in the shotgun',
+    icon: Boba,
     action: ({ shotgun, setShotgun, setMessage }) => {
       if (shotgun.length > 0) {
         const [ejectedRound, ...remainingRounds] = shotgun
@@ -80,8 +93,10 @@ export const ITEMS: Record<Item, ItemData> = {
   },
   candy: {
     id: 'candy',
-    name: '🍬 Candy',
+    // name: '🍬 Candy',
+    name: 'Candy',
     description: 'Restore one heart (up to the max)',
+    icon: Candy,
     action: ({ currentPlayer, player1Health, player2Health, setPlayer1Health, setPlayer2Health, setMessage }) => {
       const MAX_HEALTH = 6
       if (currentPlayer === 'player1' && player1Health < MAX_HEALTH) {
@@ -97,8 +112,10 @@ export const ITEMS: Record<Item, ItemData> = {
   },
   glitter: {
     id: 'glitter',
-    name: '✨ Glitter',
+    // name: '✨ Glitter',
+    name: 'Glitter',
     description: 'Double the damage on the next successful shot',
+    icon: Sparkles,
     action: ({ setMessage }) => {
       // This will need additional game state to track damage multiplier
       setMessage('Next shot will deal double damage!')
@@ -106,8 +123,10 @@ export const ITEMS: Record<Item, ItemData> = {
   },
   turnUpTheMusic: {
     id: 'turnUpTheMusic',
-    name: '🔊 Turn Up the Music',
+    // name: '🔊 Turn Up the Music',
+    name: 'Turn Up the Music',
     description: "Force the opponent to skip their next turn",
+    icon: Speaker,
     action: ({ opponent, setCurrentTurn, setMessage }) => {
       setCurrentTurn(opponent === 'player1' ? 'player2' : 'player1')
       setMessage('Opponent skips their next turn!')

@@ -6,23 +6,21 @@ import { Button } from './ui/button'
 import { useSpring, animated } from '@react-spring/three'
 import { Shell } from './Shell'
 
-export default function Scene3D() {
+export default function Scene3D({ currentTurn }: { currentTurn: 'player1' | 'player2' }) {
   const [currentAnimation, setCurrentAnimation] = useState<string | null>(null)
   const [availableAnimations, setAvailableAnimations] = useState<string[]>([])
   const [isPointedAtViewer, setIsPointedAtViewer] = useState(true)
   const [startPosition, setStartPosition] = useState<'left' | 'front'>('left')
+  const [currentPlayer, setCurrentPlayer] = useState<'player1' | 'player2'>('player1')
 
   // spring animation for rotation
   const { rotation } = useSpring({
-    rotation: [0, isPointedAtViewer 
-      ? (startPosition === 'left' ? Math.PI + Math.PI/2 : Math.PI) 
-      : (startPosition === 'left' ? Math.PI/2 : 0), 
-    0],
+    rotation: [0, currentTurn === 'player1' ? Math.PI : 0, 0], // Flip based on the turn
     config: {
       mass: 1,
       tension: 180,
       friction: 12,
-    }
+    },
   })
 
   const handleSetAnimations = (animations: string[]) => {
@@ -31,6 +29,10 @@ export default function Scene3D() {
       setCurrentAnimation(animations[0])
     }
   }
+
+  useEffect(() => {
+    setIsPointedAtViewer(currentPlayer === 'player1')
+  }, [currentPlayer])
 
   return (
     <>

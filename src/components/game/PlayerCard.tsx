@@ -58,18 +58,26 @@ export function PlayerCard({
         <div className="flex gap-2 mt-2">
           {items.map((item, index) => {
             const itemData = ITEMS[item]
+            const Icon = itemData.icon
             return (
-              <ItemTooltip 
+              <ItemTooltip
                 key={`${item}-${index}`}
                 name={itemData.name}
-                description={itemData.description}
+                description={""}
+                content={
+                  <div>
+                    <div className="font-bold text-lg">{itemData.name}</div>
+                    <div className="text-sm">{itemData.description}</div>
+                  </div>
+                }
               >
                 <button
                   onClick={() => onUseItem(item)}
                   disabled={disabled}
                   className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
                 >
-                  {itemData.name}
+                  <Icon className="w-6 h-6 inline-block" /> {/* Render the SVG icon here */}
+                  {/* <span>{itemData.name}</span> */}
                 </button>
               </ItemTooltip>
             )

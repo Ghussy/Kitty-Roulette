@@ -6,7 +6,7 @@ import { RoundDisplay } from '@/components/game/RoundDisplay'
 import { Round, Player, Item } from '@/lib/game/types'
 import { PlayerCard } from '@/components/game/PlayerCard'
 import { ITEMS } from '@/lib/game/items-logic'
-
+import Scene3D from '../components/Scene3D'
 
 export default function BuckshotRoulette() {
   const [gameStarted, setGameStarted] = useState(false)
@@ -218,38 +218,40 @@ export default function BuckshotRoulette() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <RoundDisplay
-        visibleRounds={visibleRounds}
-        currentShotgun={shotgun}
-        isReloading={isReloading}
-      />
-      <div className="flex gap-4 justify-center">
-        <PlayerCard
-          player="player1"
-          health={player1Health}
-          items={player1Items}
-          isCurrentTurn={currentTurn === 'player1'}
-          onShootSelf={() => handleShot('player1', 'player1')}
-          onShootOpponent={() => handleShot('player1', 'player2')}
-          onUseItem={useItem}
-          disabled={currentTurn !== 'player1' || gameOver || isReloading}
+    <>
+      <div className="container mx-auto p-4">
+        <RoundDisplay
+          visibleRounds={visibleRounds}
+          currentShotgun={shotgun}
+          isReloading={isReloading}
         />
-        <PlayerCard
-          player="player2"
-          health={player2Health}
-          items={player2Items}
-          isCurrentTurn={currentTurn === 'player2'}
-          onShootSelf={() => handleShot('player2', 'player2')}
-          onShootOpponent={() => handleShot('player2', 'player1')}
-          onUseItem={useItem}
-          disabled={currentTurn !== 'player2' || gameOver || isReloading}
-        />
+        <Scene3D currentTurn={currentTurn} /> {/* Passing currentTurn here */}
+        <div className="flex gap-4 justify-center">
+          <PlayerCard
+            player="player1"
+            health={player1Health}
+            items={player1Items}
+            isCurrentTurn={currentTurn === 'player1'}
+            onShootSelf={() => handleShot('player1', 'player1')}
+            onShootOpponent={() => handleShot('player1', 'player2')}
+            onUseItem={useItem}
+            disabled={currentTurn !== 'player1' || gameOver || isReloading}
+          />
+          <PlayerCard
+            player="player2"
+            health={player2Health}
+            items={player2Items}
+            isCurrentTurn={currentTurn === 'player2'}
+            onShootSelf={() => handleShot('player2', 'player2')}
+            onShootOpponent={() => handleShot('player2', 'player1')}
+            onUseItem={useItem}
+            disabled={currentTurn !== 'player2' || gameOver || isReloading}
+          />
+        </div>
+        <div className="text-center mt-4 text-xl">
+          {message}
+        </div>
       </div>
-      <div className="text-center mt-4 text-xl">
-        {message}
-      </div>
-    </div>
-  )
+    </>
+  )  
 }
-
