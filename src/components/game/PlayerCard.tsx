@@ -28,7 +28,7 @@ export function PlayerCard({
   const heartColor = player === 'player1' ? '💜 ' : '💗 ';
 
   return (
-    <Card className="w-full max-w-md h-[45vh] bg-transparent rounded-[2rem] p-4 relative border-0">
+    <Card className="w-full max-w-md h-[46vh] bg-transparent rounded-[2rem] p-4 relative border-0">
       {/* Hearts */}
       <div className={`absolute bottom-3 left-0 right-0 flex flex-col items-center gap-4 text-2xl ${!isCurrentTurn
           ? 'motion-translate-y-in-[100%]'
@@ -114,7 +114,7 @@ export function PlayerCard({
         <div
           className={`space-y-[2vh] flex flex-col items-center w-[25%] h-full ${isCurrentTurn
               ? 'motion-delay-[0.50s] motion-opacity-in-0 motion-translate-x-in-[115%] motion-blur-in-md'
-              : 'motion-opacity-out-0 motion-delay-[0.10s] motion-translate-x-out-[-125%] motion-blur-out-md'
+              : 'motion-opacity-out-0 motion-delay-[0.10s] motion-translate-x-out-[125%] motion-blur-out-md'
             }`}
         >
           {Array.from({ length: 4 }).map((_, index) => (
