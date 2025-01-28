@@ -12,6 +12,7 @@ export interface ItemData {
   name: string
   description: string
   emoji: string
+  icon: React.FC<React.SVGProps<SVGSVGElement>>
   action: (params: ItemActionParams) => void
 }
 
@@ -39,6 +40,7 @@ export const ITEMS: Record<Item, ItemData> = {
     id: 'magnifyingGlass',
     name: 'Magnifying Glass',
     emoji: '🔍',
+    icon: MagnifyingGlass,
     description: 'Peek at the next round in the shotgun',
     action: ({ shotgun, setMessage }) => {
       if (shotgun.length > 0) {
@@ -52,6 +54,7 @@ export const ITEMS: Record<Item, ItemData> = {
     id: 'stickyHand',
     name: 'Sticky Hand',
     emoji: '✋',
+    icon: Purse,
     description: 'Steal a random item from the opponent',
     action: ({ opponent, player1Items, player2Items, setPlayer1Items, setPlayer2Items, setMessage }) => {
       const opponentItems = opponent === 'player1' ? player1Items : player2Items
@@ -79,6 +82,7 @@ export const ITEMS: Record<Item, ItemData> = {
     id: 'boba',
     name: 'Boba',
     emoji: '🧋',
+    icon: Boba,
     description: 'Eject the current round in the shotgun',
     action: ({ shotgun, setShotgun, setMessage, reloadShotgun }) => {
       if (shotgun.length > 0) {
@@ -99,6 +103,7 @@ export const ITEMS: Record<Item, ItemData> = {
     id: 'candy',
     name: 'Candy',
     emoji: '🍬',
+    icon: Candy,
     description: 'Restore one heart (up to the max)',
     action: ({ currentPlayer, player1Health, player2Health, setPlayer1Health, setPlayer2Health, setMessage }) => {
       const MAX_HEALTH = 6
@@ -117,6 +122,7 @@ export const ITEMS: Record<Item, ItemData> = {
     id: 'glitter',
     name: 'Glitter',
     emoji: '✨',
+    icon: Sparkles,
     description: 'Double the damage on the next successful shot',
     action: ({ setMessage }) => {
       // This will need additional game state to track damage multiplier
@@ -127,6 +133,7 @@ export const ITEMS: Record<Item, ItemData> = {
     id: 'turnUpTheMusic',
     name: 'Turn Up the Music',
     emoji: '🔊',
+    icon: Speaker,
     description: "Force the opponent to skip their next turn",
     action: ({ opponent, setCurrentTurn, setMessage }) => {
       setCurrentTurn(opponent === 'player1' ? 'player2' : 'player1')
