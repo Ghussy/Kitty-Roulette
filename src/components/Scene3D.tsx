@@ -4,7 +4,6 @@ import { Gun } from './Scene'
 import React, { useState, useEffect } from 'react'
 import { Button } from './ui/button'
 import { useSpring, animated } from '@react-spring/three'
-import { Shell } from './Shell'
 
 export default function Scene3D() {
   const [currentAnimation, setCurrentAnimation] = useState<string | null>(null)
@@ -52,11 +51,10 @@ export default function Scene3D() {
           minPolarAngle={Math.PI / 2}
           maxPolarAngle={Math.PI / 2}
         />
-        <animated.group rotation={rotation}>
-          {/* <Shell position={[0, -0.5, 0]} scale={.02} /> */}
+        <animated.group rotation-y={rotation}>
           <Gun
             position={[0, -0.5, 0]}
-            rotation={[0, 0, 0]} // Base rotation is now handled by the animated group
+            rotation={[0, 0, 0]}
             scale={.8}
             currentAnimation={currentAnimation}
             onSetAnimations={handleSetAnimations}

@@ -40,3 +40,20 @@
 .read-the-docs {
   color: #888;
 }
+
+.canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10; 
+  border: 2px solid red; /* temporary, for debugging */
+}
+
+/* If needed, also ensure the body and root have no margins */
+body, #root {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}

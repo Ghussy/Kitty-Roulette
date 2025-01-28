@@ -9,7 +9,6 @@ Title: Low Poly Shotgun Shell
 */
 
 import * as THREE from 'three'
-import React from 'react'
 import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import { GroupProps } from '@react-three/fiber'
