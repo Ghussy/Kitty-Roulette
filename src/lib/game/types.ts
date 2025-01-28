@@ -19,4 +19,4 @@ export interface GameState {
   reloadCount: number
   visibleRounds: Round[]
   items: Item[]
-} 
+}

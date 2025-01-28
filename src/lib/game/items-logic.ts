@@ -1,9 +1,11 @@
 import { Item, Player, Round } from './types'
+// import Melody from "@/assets/Melody.svg?react"
 
 export interface ItemData {
   id: Item
   name: string
   description: string
+  emoji: string
   action: (params: ItemActionParams) => void
 }
 
@@ -23,12 +25,14 @@ interface ItemActionParams {
   setMessage: (message: string) => void
   setCurrentTurn: (player: Player) => void
   setSkipNextTurn: (player: Player) => void
+  reloadShotgun: () => void
 }
 
 export const ITEMS: Record<Item, ItemData> = {
   magnifyingGlass: {
     id: 'magnifyingGlass',
-    name: '🔍 Magnifying Glass',
+    name: 'Magnifying Glass',
+    emoji: '🔍',
     description: 'Peek at the next round in the shotgun',
     action: ({ shotgun, setMessage }) => {
       if (shotgun.length > 0) {
@@ -40,9 +44,10 @@ export const ITEMS: Record<Item, ItemData> = {
   },
   stickyHand: {
     id: 'stickyHand',
-    name: '✋ Sticky Hand',
+    name: 'Sticky Hand',
+    emoji: '✋',
     description: 'Steal a random item from the opponent',
-    action: ({ currentPlayer, opponent, player1Items, player2Items, setPlayer1Items, setPlayer2Items, setMessage }) => {
+    action: ({ opponent, player1Items, player2Items, setPlayer1Items, setPlayer2Items, setMessage }) => {
       const opponentItems = opponent === 'player1' ? player1Items : player2Items
       const stealableItems = opponentItems.filter(item => item !== 'stickyHand')
       
@@ -66,13 +71,19 @@ export const ITEMS: Record<Item, ItemData> = {
   },
   boba: {
     id: 'boba',
-    name: '🧋 Boba',
+    name: 'Boba',
+    emoji: '🧋',
     description: 'Eject the current round in the shotgun',
-    action: ({ shotgun, setShotgun, setMessage }) => {
+    action: ({ shotgun, setShotgun, setMessage, reloadShotgun }) => {
       if (shotgun.length > 0) {
         const [ejectedRound, ...remainingRounds] = shotgun
         setShotgun(remainingRounds)
         setMessage(`Ejected a ${ejectedRound === 'live' ? 'Live' : 'Blank'} round!`)
+        
+        // If we ejected the last round, trigger a reload
+        if (remainingRounds.length === 0) {
+          reloadShotgun()
+        }
       } else {
         setMessage('No rounds to eject!')
       }
@@ -80,7 +91,8 @@ export const ITEMS: Record<Item, ItemData> = {
   },
   candy: {
     id: 'candy',
-    name: '🍬 Candy',
+    name: 'Candy',
+    emoji: '🍬',
     description: 'Restore one heart (up to the max)',
     action: ({ currentPlayer, player1Health, player2Health, setPlayer1Health, setPlayer2Health, setMessage }) => {
       const MAX_HEALTH = 6
@@ -97,7 +109,8 @@ export const ITEMS: Record<Item, ItemData> = {
   },
   glitter: {
     id: 'glitter',
-    name: '✨ Glitter',
+    name: 'Glitter',
+    emoji: '✨',
     description: 'Double the damage on the next successful shot',
     action: ({ setMessage }) => {
       // This will need additional game state to track damage multiplier
@@ -106,7 +119,8 @@ export const ITEMS: Record<Item, ItemData> = {
   },
   turnUpTheMusic: {
     id: 'turnUpTheMusic',
-    name: '🔊 Turn Up the Music',
+    name: 'Turn Up the Music',
+    emoji: '🔊',
     description: "Force the opponent to skip their next turn",
     action: ({ opponent, setCurrentTurn, setMessage }) => {
       setCurrentTurn(opponent === 'player1' ? 'player2' : 'player1')
