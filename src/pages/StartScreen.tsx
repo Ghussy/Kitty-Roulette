@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface StartScreenProps {
-  onStartGame: () => void
+  onStartGame: (reloadTime: number) => void
   gameOver?: boolean
   winner?: 'Player 1' | 'Player 2'
 }
@@ -22,9 +22,25 @@ export function StartScreen({ onStartGame, gameOver, winner }: StartScreenProps)
               ? `${winner} Wins!` 
               : 'A deadly game of chance. Do you dare to play?'}
           </p>
-          <Button onClick={onStartGame} className="w-full">
-            {gameOver ? 'Play Again' : 'Start Game'}
-          </Button>
+          {gameOver ? (
+            <div className="space-y-4">
+              <Button onClick={() => onStartGame(2000)} className="w-full">
+                Play Again (Quick)
+              </Button>
+              <Button onClick={() => onStartGame(4000)} className="w-full">
+                Play Again (Normal)
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <Button onClick={() => onStartGame(2000)} className="w-full">
+                Quick Game
+              </Button>
+              <Button onClick={() => onStartGame(4000)} className="w-full">
+                Normal Game
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

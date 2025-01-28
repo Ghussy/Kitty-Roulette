@@ -20,7 +20,7 @@ export function RoundDisplay({ message }: RoundDisplayProps) {
   if (!showMessage || !message) return null
 
   return (
-    <div className="text-center text-lg font-medium font-display text-black whitespace-nowrap">
+    <div className="text-center text-lg font-medium font-display text-white whitespace-nowrap">
       {message}
     </div>
   )

@@ -28,31 +28,27 @@ export function PlayerCard({
   const heartColor = player === 'player1' ? '💜 ' : '💗 ';
 
   return (
-    <Card className="w-full max-w-md h-[46vh] bg-transparent rounded-[2rem] p-4 relative">
-  {/* Hearts */}
-  <div
-    className={`absolute bottom-3 left-0 right-0 flex flex-col items-center gap-4 text-2xl ${
-      !isCurrentTurn ? 'motion-translate-y-in-[100%]' : 'motion-translate-y-out-[70%]'
-    }`}
-  >
-    <div className="flex justify-center gap-1">{heartColor.repeat(health)}</div>
-    <div className="flex justify-center gap-2">
-      {items.map((item, index) => (
-        <div
-          key={index}
-          className="w-8 h-10 rounded-lg bg-gray-800/30 shadow-inner flex items-center justify-center text-sm"
-        >
-          {item ? (
-            React.createElement(ITEMS[item as keyof typeof ITEMS].icon, {
-              className: "w-6 h-6" // Fixed icon size here
-            })
-          ) : (
-            ''
-          )}
+    <Card className="w-full max-w-md h-[45vh] bg-transparent rounded-[2rem] p-4 relative border-0">
+      {/* Hearts */}
+      <div className={`absolute bottom-3 left-0 right-0 flex flex-col items-center gap-4 text-2xl ${
+        !isCurrentTurn 
+          ? 'motion-translate-y-in-[100%]' 
+          : 'motion-translate-y-out-[70%]'
+      }`}>
+        <div className="flex justify-center gap-1">
+          {heartColor.repeat(health)}
         </div>
-      ))}
-    </div>
-  </div>
+        <div className="flex justify-center gap-2">
+          {items.map((item, index) => (
+            <div 
+              key={index}
+              className="w-8 h-10 rounded-lg bg-gray-800/30 shadow-inner flex items-center justify-center text-sm"
+            >
+              {item ? ITEMS[item as keyof typeof ITEMS].emoji : ''}
+            </div>
+          ))}
+        </div>
+      </div>
 
   <div className="flex justify-between gap-4 mb-4">
     {/* Left side - First 4 items */}
