@@ -1,11 +1,11 @@
 import { Item, Player, Round } from './types'
 // import Melody from "@/assets/Melody.svg?react"
-import Boba from '@/assets/icons/boba.svg?react'
-import Candy from '@/assets/icons/candy.svg?react'
-import MagnifyingGlass from '@/assets/icons/magnifying-glass.svg?react'
-import Purse from '@/assets/icons/purse.svg?react'
-import Sparkles from '@/assets/icons/sparkles.svg?react'
-import Speaker from '@/assets/icons/speaker.svg?react'
+import Boba from '@/assets/boba.svg?react'
+import Candy from '@/assets/candy.svg?react'
+import MagnifyingGlass from '@/assets/magnifying-glass.svg?react'
+import Purse from '@/assets/purse.svg?react'
+import Sparkles from '@/assets/sparkles.svg?react'
+import Speaker from '@/assets/speaker.svg?react'
 
 export interface ItemData {
   id: Item
