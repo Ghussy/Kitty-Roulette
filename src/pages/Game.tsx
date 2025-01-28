@@ -38,7 +38,7 @@ export default function BuckshotRoulette({ className }: GameProps) {
     setCurrentTurn('')
     setGameOver(false)
     setMessage('')
-    setPlayer1Items(['boba', 'boba', 'boba', 'boba'])
+    setPlayer1Items([])
     setPlayer2Items([])
     reloadShotgun()
   }
@@ -67,7 +67,7 @@ export default function BuckshotRoulette({ className }: GameProps) {
     }
   }
 
-  const reloadShotgun = () => {
+  const reloadShotgun = (maintainTurn?: Player) => {
     setIsReloading(true)
     const nextReloadCount = reloadCount + 1
     setReloadCount(nextReloadCount)
@@ -80,37 +80,42 @@ export default function BuckshotRoulette({ className }: GameProps) {
         break
       case 2:
         numberOfShells = 4  // Second round: 4 shells (2 live, 2 blank)
+        giveRandomItems(2)
         break
       default:
         numberOfShells = Math.floor(Math.random() * 7) + 2  // 2 to 8 shells after that
+        const randomItemCount = Math.floor(Math.random() * 4)
+        if (randomItemCount > 0) {
+          giveRandomItems(randomItemCount)
+        }
     }
     
-    // Calculate live shells (half of total, rounded down)
     const numberOfLive = Math.floor(numberOfShells / 2)
     const numberOfBlanks = numberOfShells - numberOfLive
     
-    // Create new shells array
     const newShells = [
-      ...Array(numberOfLive).fill(true),    // Live rounds
-      ...Array(numberOfBlanks).fill(false)  // Blank rounds
+      ...Array(numberOfLive).fill(true),
+      ...Array(numberOfBlanks).fill(false)
     ]
+    
+    console.log(`Reload ${nextReloadCount}: Creating ${numberOfShells} shells (${numberOfLive} live, ${numberOfBlanks} blank)`)
     
     setActiveShells(newShells)
     setShellsVisible(true)
     setShellsExiting(false)
 
-    // After 2 seconds, complete the reload
     setTimeout(() => {
-      // Shuffle the rounds
       for (let i = newShells.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
         ;[newShells[i], newShells[j]] = [newShells[j], newShells[i]]
       }
-      setShotgun(newShells.map(live => live ? 'live' : 'blank'))
+      const finalShells = newShells.map(live => live ? 'live' : 'blank')
+      console.log('Shuffled shells:', finalShells)
+      setShotgun(finalShells)
       
       setShellsExiting(true)
       setIsReloading(false)
-      setCurrentTurn('player1')
+      setCurrentTurn(maintainTurn || 'player1')
     }, 2000)
   }
 
@@ -128,6 +133,9 @@ export default function BuckshotRoulette({ className }: GameProps) {
     
     const round = shotgun[0]
     const newShotgun = shotgun.slice(1)
+    console.log(`Shot fired: ${round} shell used, ${newShotgun.length} shells remaining`)
+    console.log('Remaining shells:', newShotgun)
+    
     setShotgun(newShotgun)
 
     if (round === 'live') {
@@ -162,7 +170,11 @@ export default function BuckshotRoulette({ className }: GameProps) {
       }
     }
 
-    if (newShotgun.length === 0) reloadShotgun()
+    // If this was the last shell, reload but maintain turn if it was a self-shot blank
+    if (newShotgun.length === 0) {
+      const maintainTurn = round === 'blank' && shooter === target
+      reloadShotgun(maintainTurn ? shooter : undefined)
+    }
   }
 
 
@@ -213,17 +225,23 @@ export default function BuckshotRoulette({ className }: GameProps) {
     if (player1Health <= 0) {
       setGameOver(true)
       setMessage('Player 2 Wins!')
+      setGameStarted(false)
     } else if (player2Health <= 0) {
       setGameOver(true)
       setMessage('Player 1 Wins!')
+      setGameStarted(false)
     }
   }, [player1Health, player2Health])
 
   if (!gameStarted) {
-    return <StartScreen onStartGame={() => {
-      setGameStarted(true)
-      resetGame()
-    }} />
+    return <StartScreen 
+      onStartGame={() => {
+        setGameStarted(true)
+        resetGame()
+      }}
+      gameOver={gameOver}
+      winner={gameOver ? (player1Health <= 0 ? 'Player 2' : 'Player 1') : undefined}
+    />
   }
 
   return (

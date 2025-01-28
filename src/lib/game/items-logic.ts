@@ -47,7 +47,7 @@ export const ITEMS: Record<Item, ItemData> = {
     name: 'Sticky Hand',
     emoji: '✋',
     description: 'Steal a random item from the opponent',
-    action: ({ currentPlayer, opponent, player1Items, player2Items, setPlayer1Items, setPlayer2Items, setMessage }) => {
+    action: ({ opponent, player1Items, player2Items, setPlayer1Items, setPlayer2Items, setMessage }) => {
       const opponentItems = opponent === 'player1' ? player1Items : player2Items
       const stealableItems = opponentItems.filter(item => item !== 'stickyHand')
       

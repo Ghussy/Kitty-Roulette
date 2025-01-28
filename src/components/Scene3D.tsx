@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { Gun } from './Scene'
-import React, { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from './ui/button'
 import { useSpring, animated } from '@react-spring/three'
 
