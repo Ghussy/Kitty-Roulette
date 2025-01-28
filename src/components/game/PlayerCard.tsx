@@ -27,7 +27,7 @@ export function PlayerCard({
   const heartColor = player === 'player1' ? '💜 ' : '💗 ';
 
   return (
-    <Card className="w-full max-w-md h-[45vh] bg-transparent rounded-[2rem] p-4 relative">
+    <Card className="w-full max-w-md h-[45vh] bg-transparent rounded-[2rem] p-4 relative border-0">
       {/* Hearts */}
       <div className={`absolute bottom-3 left-0 right-0 flex flex-col items-center gap-4 text-2xl ${
         !isCurrentTurn 

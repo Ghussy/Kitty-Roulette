@@ -19,6 +19,7 @@ export default function ShellScene({
   onAnimationComplete 
 }: ShellSceneProps) {
   const [time, setTime] = useState(0)
+  const [displayedShells, setDisplayedShells] = useState(shells)
   
   const trail = useTrail(shells.length, {
     from: { scale: [0.5, 0.5, 0.5], y: 0, x: 10, rotation: 0 },
@@ -69,6 +70,12 @@ export default function ShellScene({
     return () => clearInterval(interval)
   }, [isVisible])
 
+  useEffect(() => {
+    if (!isExiting) {
+      setDisplayedShells(shells)
+    }
+  }, [shells, isExiting])
+
   return (
     <Canvas
       camera={{
@@ -80,6 +87,7 @@ export default function ShellScene({
         height: '100vh',
       }}
     >
+      <color attach="background" args={['black']} />
       <ambientLight intensity={0.8} />
       <directionalLight position={[10, 10, 5]} intensity={1.5} />
       <OrbitControls 
@@ -106,7 +114,7 @@ export default function ShellScene({
             rotation-z={props.rotation.to(r => r + idleRotation)}
           >
             <Shell 
-              isLive={shells[index]}
+              isLive={displayedShells[index]}
               rotation={[0, 0, 0]}
               scale={.06}
             />

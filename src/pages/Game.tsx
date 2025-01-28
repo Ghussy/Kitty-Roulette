@@ -32,6 +32,9 @@ export default function BuckshotRoulette({ className }: GameProps) {
   const [shellsExiting, setShellsExiting] = useState(false)
   const [activeShells, setActiveShells] = useState<boolean[]>([])
 
+  // Add new state for reload time
+  const [reloadTime, setReloadTime] = useState(4000)
+
   const resetGame = () => {
     setPlayer1Health(6)
     setPlayer2Health(6)
@@ -116,7 +119,7 @@ export default function BuckshotRoulette({ className }: GameProps) {
       setShellsExiting(true)
       setIsReloading(false)
       setCurrentTurn(maintainTurn || 'player1')
-    }, 2000)
+    }, reloadTime)  // Use the configurable reload time here
   }
 
   const handleShellAnimationComplete = () => {
@@ -129,15 +132,24 @@ export default function BuckshotRoulette({ className }: GameProps) {
   const handleShot = (shooter: Player, target: Player) => {
     if (shotgun.length === 0) return
     
-    setShellsExiting(true)
-    
     const round = shotgun[0]
     const newShotgun = shotgun.slice(1)
-    console.log(`Shot fired: ${round} shell used, ${newShotgun.length} shells remaining`)
-    console.log('Remaining shells:', newShotgun)
     
-    setShotgun(newShotgun)
-
+    // If this was the last shell, handle reload
+    if (newShotgun.length === 0) {
+      setShellsExiting(true)  // Start exit animation
+      // Wait for exit animation before updating shells
+      setTimeout(() => {
+        setShotgun(newShotgun)
+        const maintainTurn = round === 'blank' && shooter === target
+        reloadShotgun(maintainTurn ? shooter : undefined)
+      }, 1000)  // Adjust timing as needed
+    } else {
+      setShotgun(newShotgun)
+    }
+    
+    setShellsExiting(true)
+    
     if (round === 'live') {
       const damage = glitterActive ? 2 : 1
       if (target === 'player1') {
@@ -168,12 +180,6 @@ export default function BuckshotRoulette({ className }: GameProps) {
           setCurrentTurn(nextPlayer)
         }
       }
-    }
-
-    // If this was the last shell, reload but maintain turn if it was a self-shot blank
-    if (newShotgun.length === 0) {
-      const maintainTurn = round === 'blank' && shooter === target
-      reloadShotgun(maintainTurn ? shooter : undefined)
     }
   }
 
@@ -235,7 +241,8 @@ export default function BuckshotRoulette({ className }: GameProps) {
 
   if (!gameStarted) {
     return <StartScreen 
-      onStartGame={() => {
+      onStartGame={(time) => {
+        setReloadTime(time)
         setGameStarted(true)
         resetGame()
       }}
